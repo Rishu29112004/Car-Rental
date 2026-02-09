@@ -49,7 +49,7 @@ const Subscribe = () => {
           />
           <button
             type="submit"
-            className="w-full sm:w-auto px-10 py-4 font-medium text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all duration-200"
+            className="w-full cursor-pointer sm:w-auto px-10 py-4 font-medium text-white bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 transition-all duration-200"
           >
             Subscribe
           </button>

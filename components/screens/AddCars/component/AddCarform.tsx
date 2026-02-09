@@ -51,6 +51,7 @@ export const AddCarForm = () => {
       category: undefined,
       transmission: undefined,
       fuelType: undefined,
+      status: "available",
 
       seats: undefined,
       location: undefined,
@@ -62,9 +63,16 @@ export const AddCarForm = () => {
   useEffect(() => {
     setIsMounted(true);
   }, []);
+  useEffect(() => {
+  if (Object.keys(form.formState.errors).length > 0) {
+    console.log("Validation Errors => ", form.formState.errors);
+  }
+}, [form.formState.errors]);
+
 
   const onSubmit = async (data: AddCarFormValues) => {
     try {
+      console.log("check for the data what is here ",data)
       setLoading(true);
       const response = await carService.addCar(data);
       
@@ -160,7 +168,7 @@ export const AddCarForm = () => {
                 <FormControl>
                   <Input
                     type="number"
-                    onChange={(e) => field.onChange(+e.target.value)}
+                    onChange={(e) => field.onChange(Number(e.target.value))}
                   />
                 </FormControl>
                 <FormMessage />
@@ -316,7 +324,7 @@ export const AddCarForm = () => {
         <div className="pt-2">
           <Button 
             type="submit" 
-            className="w-full sm:w-auto" 
+            className="w-full sm:w-auto cursor-pointer" 
             disabled={loading}
           >
             {loading ? "Adding Car..." : "List Your Car"}

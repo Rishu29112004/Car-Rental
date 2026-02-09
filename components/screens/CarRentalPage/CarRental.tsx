@@ -5,6 +5,7 @@ import {
   Fuel,
   MapPin,
   MoveLeft,
+  Settings,
   UsersRound,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -14,6 +15,8 @@ import { toast } from "sonner";
 import { carService } from "../../services/car.service";
 import { Car } from "@/components/custom/carCard/CarCard";
 import { useParams } from "next/navigation";
+import { carBookingService } from "@/components/services/carBooking.service";
+import PaymentModal from "./components/PaymentModal";
 
 // types/car.ts
 export type car = {
@@ -29,35 +32,34 @@ export type car = {
   seats: number;
   location: "delhi" | "pune" | "bangalore";
   description: string;
+  status: "available" | "booked" | "inactive";
 };
 
-export const carFeatures = [
-  {
-    id: 1,
-    name: "360° Camera",
-    available: true,
-  },
-  {
-    id: 2,
-    name: "Bluetooth",
-    available: true,
-  },
-  {
-    id: 3,
-    name: "GPS",
-    available: true,
-  },
-  {
-    id: 4,
-    name: "Heated Seats",
-    available: true,
-  },
-  {
-    id: 5,
-    name: "Rear View Mirror",
-    available: true,
-  },
-];
+export const categoryFeatures = {
+  suv: [
+    "4 Wheel Drive",
+    "Hill Assist",
+    "Terrain Response Modes",
+    "360° Camera",
+    "Off-Road Suspension",
+  ],
+
+  sedan: [
+    "Cruise Control",
+    "Sunroof",
+    "Rear AC Vents",
+    "Push Button Start",
+    "Lane Assist",
+  ],
+
+  luxury: [
+    "Heated Seats",
+    "Ventilated Seats",
+    "Panoramic Sunroof",
+    "Premium Sound System",
+    "Ambient Lighting",
+  ],
+};
 
 type Data = {
   pickupDate: string;
@@ -88,18 +90,11 @@ const CarRental = () => {
     }
   };
 
-  console.log(localStorage.getItem("accessToken"))
-
-
-  console.log("first check the ", car)
-
-
   useEffect(() => {
     if (carId) {
       fetchCars();
     }
   }, [carId]);
-
 
   const [formdata, setFormData] = useState<Data>({
     pickupDate: "",
@@ -139,18 +134,56 @@ const CarRental = () => {
     setError((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  // const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  //   e.preventDefault();
+  //   if (errorValidation()) {
+  //     setFormData({
+  //       pickupDate: "",
+  //       returnDate: "",
+  //     });
+  //     console.log(formdata);
+  //     toast.success("Added Submitted Successfully");
+  //   }
+  // };
+
+  const features = car ? categoryFeatures[car.category] || [] : [];
+
+  //////////////////////////////////////////////////////////////////////////////////////////booking part
+
+  const [booking, setBooking] = useState<any>(null);
+  const [paymentStatus, setPaymentStatus] = useState<
+    "idle" | "booked" | "paid"
+  >("idle");
+
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (errorValidation()) {
+
+    if (!errorValidation()) return;
+
+    try {
+      const payload = {
+        carId: carId as string,
+        startDate: formdata.pickupDate,
+        endDate: formdata.returnDate,
+      };
+
+      const res = await carBookingService.createBooking(payload);
+
+      setBooking(res.booking);
+      setPaymentStatus("booked");
+
+      toast.success("Booking Created");
+
       setFormData({
         pickupDate: "",
         returnDate: "",
       });
-      console.log(formdata);
-      toast.success("Added Submitted Successfully");
+    } catch (error: any) {
+      toast.error(error?.response?.data?.message || "Booking Failed");
     }
   };
-
 
   return (
     <div className="min-h-screen w-full">
@@ -221,12 +254,33 @@ const CarRental = () => {
                 )}
               </div>
               <div>
-                <button
-                  type="submit"
-                  className="w-full py-2 font-semibold text-white bg-blue-500 rounded-md"
-                >
-                  Book Now
-                </button>
+                {paymentStatus === "idle" && (
+                  <button
+                    type="submit"
+                    className="w-full py-2 cursor-pointer font-semibold text-white bg-blue-500 rounded-md"
+                  >
+                    Book Now
+                  </button>
+                )}
+
+                {paymentStatus === "booked" && (
+                  <button
+                    type="button"
+                    onClick={() => setIsPaymentModalOpen(true)}
+                    className="w-full py-2 font-semibold text-white bg-green-500 rounded-md"
+                  >
+                    Pay Now
+                  </button>
+                )}
+
+                {paymentStatus === "paid" && (
+                  <button
+                    disabled
+                    className="w-full py-2 font-semibold text-white bg-gray-400 rounded-md"
+                  >
+                    Paid
+                  </button>
+                )}
               </div>
               <p className="text-sm text-gray-500 w-full flex items-center justify-center">
                 No credit card required to reserve
@@ -241,20 +295,39 @@ const CarRental = () => {
             <hr className="border-t my-6 border w-full" />
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-24 bg-gray-200 animate-pulse rounded-md"></div>
+                <div
+                  key={i}
+                  className="h-24 bg-gray-200 animate-pulse rounded-md"
+                ></div>
               ))}
             </div>
           </div>
         ) : car ? (
           <div className="w-full">
             <div className="w-full mt-10">
-              <p className="text-3xl font-bold capitalize">
+              <p className="text-3xl font-bold text-gray-900 capitalize tracking-tight">
                 {car.brand} {car.model}
               </p>
-              <p className="text-gray-500 font-semibold capitalize">
-                {car.category} • {car.manufacturingYear}
-              </p>
+
+              <div className="flex items-center gap-4 mt-2 text-sm">
+                <p className="text-gray-500 font-medium capitalize">
+                  {car.category} • {car.manufacturingYear}
+                </p>
+
+                <span
+                  className={`px-2 py-0.5 rounded-md text-md font-semibold border ${
+                    car.status === "available"
+                      ? "bg-blue-50 text-blue-600 border-blue-100"
+                      : car.status === "booked"
+                        ? "bg-orange-50 text-orange-600 border-orange-100"
+                        : "bg-gray-100 text-gray-600 border-gray-200"
+                  }`}
+                >
+                  {car.status}
+                </span>
+              </div>
             </div>
+
             <hr className="border-t my-6 border w-full" />
             <div className="flex flex-col md:flex-row gap-6 md:gap-2 items-center mb-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center justify-around w-full md:w-1/2 px-4 md:px-0">
@@ -271,7 +344,9 @@ const CarRental = () => {
                   <p className="font-semibold capitalize">{car.fuelType}</p>
                 </div>
                 <div className="flex flex-col items-center gap-2 px-8 py-3 bg-slate-100 rounded-md">
-                  <p className="text-gray-500">{/* <Car /> */}</p>
+                  <p className="text-gray-500">
+                    <Settings />
+                  </p>
                   <p className="font-semibold capitalize">{car.transmission}</p>
                 </div>
                 <div className="flex flex-col items-center gap-2 px-8 py-3 bg-slate-100 rounded-md">
@@ -289,15 +364,15 @@ const CarRental = () => {
               </div>
             </div>
             <div className="w-full pb-6 md:pb-4 md:py-6 p-5 md:p-0">
-              <p className="text-xl font-semibold">Features:</p>
+              <p className="text-xl font-semibold">Baisc features:</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:flex gap-4 py-4 md:gap-0 items-center justify-around pt-4">
-                {carFeatures.map((t) => (
-                  <div key={t.id} className="">
+                {features.map((feature, i) => (
+                  <div key={i}>
                     <p className="flex gap-2 text-gray-500 font-semibold">
                       <span className="text-blue-500">
                         <CircleCheckBig />
                       </span>
-                      {t.name}
+                      {feature}
                     </p>
                   </div>
                 ))}
@@ -306,6 +381,25 @@ const CarRental = () => {
           </div>
         ) : null}
       </div>
+      {isPaymentModalOpen && booking && car && (
+        <PaymentModal
+          car={car}
+          booking={booking}
+          onClose={() => setIsPaymentModalOpen(false)}
+          onPay={async () => {
+            try {
+              await carBookingService.payBooking(booking._id);
+
+              setPaymentStatus("paid");
+              setIsPaymentModalOpen(false);
+
+              toast.success("Payment Successful 🎉");
+            } catch {
+              toast.error("Payment Failed");
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 
 const ListYourCar = () => {
   return (
@@ -9,6 +10,7 @@ const ListYourCar = () => {
           <p className="font-semibold text-white text-3xl">
             Do You Own a Luxury Car?
           </p>
+
           <p className="text-white">
             Monetize your vehicle effortlessly by listing it on CarRental.
             <br /> We take care of insurance, driver verification and secure
@@ -16,9 +18,11 @@ const ListYourCar = () => {
             <br />
             you can earn passive income, stress-free.
           </p>
-          <button className="bg-white rounded-lg font-bold text-blue-500 px-4 py-1">
-            List your car
-          </button>
+          <Link href={"/admin/add-car"}>
+            <button className="bg-white cursor-pointer rounded-lg font-bold text-blue-500 px-4 py-1">
+              List your car
+            </button>
+          </Link>
         </div>
         <div className="">
           <Image

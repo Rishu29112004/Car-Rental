@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+import { useModal } from "@/context/modal-context";
 
 import {
   Form,
@@ -27,14 +29,22 @@ import {
 import { Button } from "@/components/ui/button";
 
 import {
-  addCarSchema,
-  AddCarFormValues,
+  editCarSchema,
+  EditCarFormValues,
 } from "@/components/screens/AddCars/component/validation/add-car.schema";
 import { carService } from "@/components/services/car.service";
 
-const EditCarDetailsForm = ({ carId }: { carId: string }) => {
-  const form = useForm<AddCarFormValues>({
-    resolver: zodResolver(addCarSchema),
+const EditCarDetailsForm = ({
+  carId,
+  refreshCars,
+}: {
+  carId: string;
+  refreshCars?: () => void; // optional function
+})=> {
+  const { closeSheet } = useModal();
+
+  const form = useForm<EditCarFormValues>({
+    resolver: zodResolver(editCarSchema),
     defaultValues: {
       image: undefined,
 
@@ -48,12 +58,14 @@ const EditCarDetailsForm = ({ carId }: { carId: string }) => {
       transmission: undefined,
       fuelType: undefined,
 
+      status: undefined,
+
       seats: undefined,
       location: undefined,
 
       description: "",
     },
-  });
+  })
 
   // 🔥 PREFILL FORM WITH EXISTING CAR DATA
   useEffect(() => {
@@ -77,6 +89,8 @@ const EditCarDetailsForm = ({ carId }: { carId: string }) => {
           transmission: car.transmission,
           fuelType: car.fuelType,
 
+          status: car.status,
+
           seats: car.seats,
           location: car.location,
 
@@ -89,10 +103,18 @@ const EditCarDetailsForm = ({ carId }: { carId: string }) => {
 
     fetchCar();
   }, [carId]);
-
   // ✅ SUBMIT HANDLER
-  const onSubmit = (data: AddCarFormValues) => {
-    console.log("EDIT CAR DATA:", data);
+  const onSubmit = async (data: EditCarFormValues) => {
+    try {
+      const response = await carService.updateCar(carId, data);
+      toast.success("Car updated successfully");
+      refreshCars?.();
+      closeSheet();
+      console.log("EDIT CAR DATA:", response);
+    } catch (error) {
+      console.error("Failed to update car", error);
+      toast.error("Failed to update car");
+    }
   };
 
   return (
@@ -113,12 +135,10 @@ const EditCarDetailsForm = ({ carId }: { carId: string }) => {
                   <Input
                     type="file"
                     accept="image/*"
-                    onChange={(e) =>
-                      field.onChange(e.target.files?.[0])
-                    }
+                    onChange={(e) => field.onChange(e.target.files?.[0])}
                   />
                 </FormControl>
-                <FormMessage/>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -134,7 +154,7 @@ const EditCarDetailsForm = ({ carId }: { carId: string }) => {
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
-                   <FormMessage/>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -148,7 +168,7 @@ const EditCarDetailsForm = ({ carId }: { carId: string }) => {
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
-                   <FormMessage/>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -166,12 +186,10 @@ const EditCarDetailsForm = ({ carId }: { carId: string }) => {
                     <Input
                       type="number"
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(+e.target.value)
-                      }
+                      onChange={(e) => field.onChange(+e.target.value)}
                     />
                   </FormControl>
-                   <FormMessage/>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -186,97 +204,115 @@ const EditCarDetailsForm = ({ carId }: { carId: string }) => {
                     <Input
                       type="number"
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(+e.target.value)
-                      }
+                      onChange={(e) => field.onChange(+e.target.value)}
                     />
                   </FormControl>
-                   <FormMessage/>
+                  <FormMessage />
                 </FormItem>
               )}
             />
           </div>
 
-          {/* Category */}
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="suv">SUV</SelectItem>
-                    <SelectItem value="sedan">Sedan</SelectItem>
-                    <SelectItem value="luxury">Luxury</SelectItem>
-                  </SelectContent>
-                </Select>
-                 <FormMessage/>
-              </FormItem>
-            )}
-          />
+          <div className="grid grid-cols-2 gap-3">
+            {/* Category */}
+            <FormField
+              control={form.control}
+              name="category"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Category</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="suv">SUV</SelectItem>
+                      <SelectItem value="sedan">Sedan</SelectItem>
+                      <SelectItem value="luxury">Luxury</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Transmission */}
-          <FormField
-            control={form.control}
-            name="transmission"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Transmission</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select transmission" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="automatic">Automatic</SelectItem>
-                    <SelectItem value="manual">Manual</SelectItem>
-                  </SelectContent>
-                </Select>
-                 <FormMessage/>
-              </FormItem>
-            )}
-          />
+            {/* Transmission */}
+            <FormField
+              control={form.control}
+              name="transmission"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Transmission</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select transmission" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="automatic">Automatic</SelectItem>
+                      <SelectItem value="manual">Manual</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
 
-          {/* Fuel Type */}
-          <FormField
-            control={form.control}
-            name="fuelType"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Fuel Type</FormLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select fuel" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="petrol">Petrol</SelectItem>
-                    <SelectItem value="diesel">Diesel</SelectItem>
-                    <SelectItem value="electric">Electric</SelectItem>
-                  </SelectContent>
-                </Select>
-                 <FormMessage/>
-              </FormItem>
-            )}
-          />
+          <div className="grid grid-cols-2 gap-3">
+            {/* Fuel Type */}
+            <div className="w-full">
+              <FormField
+                control={form.control}
+                name="fuelType"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Fuel Type</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger className="w-full">
+                          <SelectValue placeholder="Select fuel" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="petrol">Petrol</SelectItem>
+                        <SelectItem value="diesel">Diesel</SelectItem>
+                        <SelectItem value="electric">Electric</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            {/* status */}
 
+            <FormField
+              control={form.control}
+              name="status"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Status</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl>
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="available">Available</SelectItem>
+                      <SelectItem value="booked">Booked</SelectItem>
+                      <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           {/* Seats & Location */}
           <div className="grid grid-cols-2 gap-3">
             <FormField
@@ -289,12 +325,10 @@ const EditCarDetailsForm = ({ carId }: { carId: string }) => {
                     <Input
                       type="number"
                       value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(+e.target.value)
-                      }
+                      onChange={(e) => field.onChange(+e.target.value)}
                     />
                   </FormControl>
-                   <FormMessage/>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -305,24 +339,19 @@ const EditCarDetailsForm = ({ carId }: { carId: string }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Location</FormLabel>
-                  <Select
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  >
+                  <Select value={field.value} onValueChange={field.onChange}>
                     <FormControl>
-                      <SelectTrigger>
+                      <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select city" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
                       <SelectItem value="delhi">Delhi</SelectItem>
                       <SelectItem value="pune">Pune</SelectItem>
-                      <SelectItem value="bangalore">
-                        Bangalore
-                      </SelectItem>
+                      <SelectItem value="bangalore">Bangalore</SelectItem>
                     </SelectContent>
                   </Select>
-                   <FormMessage/>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -338,16 +367,14 @@ const EditCarDetailsForm = ({ carId }: { carId: string }) => {
                 <FormControl>
                   <Textarea rows={3} {...field} />
                 </FormControl>
-                 <FormMessage/>
+                <FormMessage />
               </FormItem>
             )}
           />
 
           {/* Submit */}
           <div className="sticky bottom-0 bg-slate-100 pt-3 pb-4">
-            <Button className="w-full">
-              Edit Your Car
-            </Button>
+            <Button className="w-full">Edit Your Car</Button>
           </div>
         </form>
       </Form>

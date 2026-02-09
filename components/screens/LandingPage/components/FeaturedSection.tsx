@@ -43,7 +43,7 @@ const FeaturedSection: React.FC = () => {
         />
 
         {/* Cars Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 cursor-pointer lg:grid-cols-3 gap-8 sm:gap-10">
             {carData.slice(0,6).map((car: Car) => (
               <CarCard key={car._id} car={car} />
             ))}
@@ -52,7 +52,7 @@ const FeaturedSection: React.FC = () => {
         {/* Explore Button */}
         <div className="flex justify-center pt-4">
           <Link href={"/cars"}>
-            <button className="group flex items-center gap-2 border border-gray-400 px-6 py-3 rounded-full text-sm md:text-base hover:bg-gray-900 hover:text-white transition-all duration-200">
+            <button className="group flex items-center cursor-pointer gap-2 border border-gray-400 px-6 py-3 rounded-full text-sm md:text-base hover:bg-gray-900 hover:text-white transition-all duration-200">
               Explore all cars
               <ArrowRight
                 size={18}
