@@ -1,18 +1,12 @@
 import React from "react";
 import Image from "next/image";
-import {
-  FacebookIcon,
-  InstagramIcon,
-  Mail,
-  TwitchIcon,
-} from "lucide-react";
+import { FacebookIcon, InstagramIcon, Mail, TwitchIcon } from "lucide-react";
 
 const Footer = () => {
   return (
     <div className="w-full bg-slate-100 py-12 text-gray-700">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex flex-col md:flex-row justify-between gap-10">
-          
           {/* Left Section */}
           <div className="flex flex-col gap-4 md:w-1/2">
             <Image
@@ -20,7 +14,6 @@ const Footer = () => {
               alt="Logo"
               width={150}
               height={50}
-              className="object-contain"
             />
             <p className="text-sm leading-relaxed max-w-md">
               Discover a seamless car rental experience with luxury and everyday
@@ -48,7 +41,9 @@ const Footer = () => {
             <div className="flex flex-col gap-2 text-sm">
               <h1 className="font-semibold text-gray-900">RESOURCES</h1>
               <p className="hover:text-black cursor-pointer">Help Center</p>
-              <p className="hover:text-black cursor-pointer">Terms of Service</p>
+              <p className="hover:text-black cursor-pointer">
+                Terms of Service
+              </p>
               <p className="hover:text-black cursor-pointer">Privacy Policy</p>
               <p className="hover:text-black cursor-pointer">Insurance</p>
             </div>

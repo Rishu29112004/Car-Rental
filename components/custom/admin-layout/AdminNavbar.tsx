@@ -1,10 +1,13 @@
 "use client";
 import Link from "next/link"
+import { useAuth } from "@/context/auth-context";
 
 import Image from "next/image";
 
 
 const AdminNavbar = () => {
+const { user } = useAuth();
+console.log(user)
   return (
     <div className="w-full bg-slate-100 shadow-md fixed top-0 z-50">
       {/* NAVBAR */}
@@ -21,7 +24,7 @@ const AdminNavbar = () => {
           />
         </Link>
         <div>
-          <p className="font-semibold text-gray-500">Welcome,Rishu</p>
+          <p className="font-semibold text-gray-500">Welcome, {user?.name || "User"}</p>
         </div>
       </div>
 

@@ -9,23 +9,23 @@ import { useRouter } from "next/navigation";
 
 // --- TypeScript Interface ---
 export interface Car {
-  _id: string;               // Database ID
-  owner: string;             // Who owns the car
-  brand: string;             // Matches z.string() in schema
-  model: string;             // Matches z.string() in schema
-  image: string;      // In schema, it's a File; in DB, it could be URL string
+  _id: string; // Database ID
+  owner: string; // Who owns the car
+  brand: string; // Matches z.string() in schema
+  model: string; // Matches z.string() in schema
+  image: string; // In schema, it's a File; in DB, it could be URL string
   manufacturingYear: number; // Matches 'manufacturingYear' in schema
-  dailyPrice: number;        // Matches 'dailyPrice' in schema
+  dailyPrice: number; // Matches 'dailyPrice' in schema
   category: "suv" | "sedan" | "luxury"; // z.enum values
   transmission: "automatic" | "manual"; // z.enum values
   fuelType: "petrol" | "diesal" | "electric"; // z.enum values
-  seats: number;             // Matches 'seats' in schema
+  seats: number; // Matches 'seats' in schema
   location: "delhi" | "pune" | "bangalore"; // z.enum values
-  description: string;       // Matches schema
-  isAvailable: boolean;      // Availability flag
-  createdAt: string;         // Timestamp
+  description: string; // Matches schema
+  isAvailable: boolean; // Availability flag
+  createdAt: string; // Timestamp
+  status: "available" | "booked" | "inactive";
 }
-
 
 // --- Props Interface ---
 interface CarCardProps {
@@ -50,16 +50,12 @@ const CarCard = ({ car }: CarCardProps) => {
           width={400}
           height={300}
         />
+<span className={`absolute top-3 left-3 bg-white/70 text-[10px] font-bold px-2.5 py-1 rounded-md shadow-sm border border-gray-100 ${car.status === "available" ? "text-blue-600" : car.status === "booked" ? "text-orange-600" : "text-gray-500"}`}>{car.status === "available" ? "Available" : car.status === "booked" ? "Booked" : "Inactive"}</span>
 
-        {car.isAvailable && (
-          <span className="absolute top-4 left-4 bg-blue-600 text-white text-xs font-medium px-3 py-1 rounded-full">
-            Available Now
-          </span>
-        )}
 
         <div className="absolute bottom-4 right-4 bg-black/80 text-white px-4 py-2 rounded-lg text-sm font-semibold">
           {currency}
-           <span className="font-normal">{car.dailyPrice}</span>
+          <span className="font-normal">{car.dailyPrice}</span>
         </div>
       </div>
 
@@ -102,7 +98,8 @@ const CarCard = ({ car }: CarCardProps) => {
               src={assets.location_icon}
               alt="Location"
               width={16}
-              height={16}
+              // height={16}
+              style={{ width: 16, height: "auto" }} // keeps original aspect ratio
             />
             {car.location}
           </div>

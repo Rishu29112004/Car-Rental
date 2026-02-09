@@ -3,18 +3,22 @@
 import LoginForm from "@/components/screens/Login/components/LoginForm";
 import { useAuth } from "@/context/auth-context";
 import { useModal } from "@/context/modal-context";
-import { clearTokens } from "@/utils/token";
 import { useEffect, useRef } from "react";
+import Link from "next/link";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-const ProfileDropdown = () => {
+interface ProfileDropdownProps {
+  profileImageUrl?: string; // optional image URL
+}
+
+const ProfileDropdown = ({ profileImageUrl }: ProfileDropdownProps) => {
   const { user, logout } = useAuth();
-  const {openModal}=useModal()
+  const { openModal } = useModal();
   const dropdownRef = useRef<HTMLDivElement | null>(null);
 
   const handleLogout = async () => {
     await logout();
-    openModal(<LoginForm/>,false)
- 
+    openModal(<LoginForm />, false);
   };
 
   useEffect(() => {
@@ -31,6 +35,13 @@ const ProfileDropdown = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Generate initials
+  const initials = user?.name
+    ?.split(" ")
+    .map((word) => word[0])
+    .join("")
+    .toUpperCase();
+
   return (
     <div
       ref={dropdownRef}
@@ -38,9 +49,17 @@ const ProfileDropdown = () => {
     >
       {/* User Info */}
       <div className="flex items-center gap-3 border-b pb-3">
-        <div className="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center font-semibold text-slate-700">
-          {user?.name?.charAt(0).toUpperCase()}
-        </div>
+        <Avatar className="h-10 w-10">
+          {profileImageUrl ? (
+            <AvatarImage src={profileImageUrl} />
+          ) : user?.imageUrl ? (
+            <AvatarImage src={user.imageUrl} />
+          ) : (
+            <AvatarFallback className="bg-slate-200 text-slate-700 font-semibold">
+              {initials || user?.name?.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          )}
+        </Avatar>
 
         <div className="flex flex-col">
           <p className="font-semibold text-gray-800 leading-tight">
@@ -51,9 +70,14 @@ const ProfileDropdown = () => {
       </div>
 
       {/* Actions */}
+      <Link href="/bookings">
+        <button className="mt-4 cursor-pointer w-full flex items-center justify-center gap-2 bg-slate-200 hover:bg-slate-300 transition text-slate-700 rounded-lg py-2 text-sm font-medium">
+          Profile
+        </button>
+      </Link>
       <button
         onClick={handleLogout}
-        className="mt-4 w-full flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 transition text-white rounded-lg py-2 text-sm font-medium"
+        className="mt-4 w-full cursor-pointer flex items-center justify-center gap-2 bg-red-500 hover:bg-red-600 transition text-white rounded-lg py-2 text-sm font-medium"
       >
         Logout
       </button>

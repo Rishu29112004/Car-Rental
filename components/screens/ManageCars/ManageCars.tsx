@@ -22,34 +22,53 @@ const tableHeaders = [
 
 const ManageCars = () => {
   const { openSheet, openModal } = useModal();
+
   const [cars, setCars] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch user's cars
-  useEffect(() => {
-    const fetchMyCars = async () => {
-      try {
-        setLoading(true);
-        const response = await carService.getMyCars();
-        setCars(response.data || []);
-      } catch (error: any) {
-        const errorMessage = error.response?.data?.message || "Failed to fetch your cars";
-        toast.error(errorMessage);
-        console.error("Failed to fetch cars:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+const fetchMyCars = async () => {
+  try {
+    setLoading(true);
+    const response = await carService.getMyCars();
+    setCars(response.data || []);
+ 
+  } catch (error: any) {
+    toast.error("Failed to fetch your cars");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    fetchMyCars();
-  }, []);
+useEffect(() => {
+  let isMounted = true;
+
+  const fetchMyCars = async () => {
+    try {
+      setLoading(true);
+      const response = await carService.getMyCars();
+      if (isMounted) setCars(response.data || []);
+    } catch (error: any) {
+      if (isMounted) toast.error("Failed to fetch your cars");
+    } finally {
+      if (isMounted) setLoading(false);
+    }
+  };
+
+  fetchMyCars();
+
+  return () => {
+    isMounted = false; // cleanup on unmount
+  };
+}, []);
+
 
 
   const handleEdit = (car: any) => {
     openSheet(
       <div >
         <h2 className="text-xl font-bold mb-4">Edit Car Details</h2>
-        <EditCarDetailsForm carId={car._id} />
+        <EditCarDetailsForm carId={car._id}  refreshCars={fetchMyCars} />
       </div>
     );
   };
@@ -155,7 +174,7 @@ const ManageCars = () => {
                       <button
                         onClick={() => handleEdit(car)}
                         className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md
-                        bg-blue-50 text-blue-600 border border-blue-200
+                        bg-blue-50 text-blue-600 border cursor-pointer border-blue-200
                         hover:bg-blue-100 transition"
                       >
                         <Pencil size={14} />
@@ -165,7 +184,7 @@ const ManageCars = () => {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => handleDelete(car._id, `${car.brand} ${car.model}`)}
-                        className="flex items-center gap-2 px-3 py-1.5 text-sm rounded-md
+                        className="flex items-center cursor-pointer gap-2 px-3 py-1.5 text-sm rounded-md
                         bg-red-50 text-red-600 border border-red-200
                         hover:bg-red-100 transition"
                       >
