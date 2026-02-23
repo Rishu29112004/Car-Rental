@@ -37,7 +37,7 @@ const Cars = () => {
     const results = cars.filter((car) =>
       `${car.brand} ${car.model} ${car.dailyPrice} ${car.description}`
         .toLowerCase()
-        .includes(searchItem.toLowerCase())
+        .includes(searchItem.toLowerCase()),
     );
 
     setFilterCar(results);
@@ -90,15 +90,11 @@ const Cars = () => {
 
   /* ================= PAGINATION LOGIC ================= */
 
-  const dataToShow =
-    searchItem.trim() === "" ? cars : filterCar;
+  const dataToShow = searchItem.trim() === "" ? cars : filterCar;
 
   const indexOfLastCar = currentPage * carsPerPage;
   const indexOfFirstCar = indexOfLastCar - carsPerPage;
-  const currentCars = dataToShow.slice(
-    indexOfFirstCar,
-    indexOfLastCar
-  );
+  const currentCars = dataToShow.slice(indexOfFirstCar, indexOfLastCar);
 
   const totalPages = Math.ceil(dataToShow.length / carsPerPage);
 
@@ -172,15 +168,11 @@ const Cars = () => {
           </p>
 
           {loading && (
-            <p className="text-center text-gray-500 py-10">
-              Loading cars...
-            </p>
+            <p className="text-center text-gray-500 py-10">Loading cars...</p>
           )}
 
           {!loading && dataToShow.length === 0 && (
-            <p className="text-center text-gray-500 py-10">
-              No cars available
-            </p>
+            <p className="text-center text-gray-500 py-10">No cars available</p>
           )}
 
           {!loading && dataToShow.length > 0 && (
@@ -196,9 +188,7 @@ const Cars = () => {
               {totalPages > 1 && (
                 <div className="flex justify-center items-center gap-2 mt-12 flex-wrap">
                   <button
-                    onClick={() =>
-                      handlePageChange(currentPage - 1)
-                    }
+                    onClick={() => handlePageChange(currentPage - 1)}
                     disabled={currentPage === 1}
                     className="px-4 py-2 rounded-md border text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition"
                   >
@@ -223,9 +213,7 @@ const Cars = () => {
                   })}
 
                   <button
-                    onClick={() =>
-                      handlePageChange(currentPage + 1)
-                    }
+                    onClick={() => handlePageChange(currentPage + 1)}
                     disabled={currentPage === totalPages}
                     className="px-4 py-2 rounded-md border text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-100 transition"
                   >
@@ -237,7 +225,6 @@ const Cars = () => {
           )}
         </div>
       </div>
-
     </div>
   );
 };
