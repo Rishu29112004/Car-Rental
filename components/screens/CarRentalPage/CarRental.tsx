@@ -77,7 +77,6 @@ const CarRental = () => {
   const params = useParams<{ id: string }>();
   const carId = params?.id;
 
-  console.log("car's id ", carId);
 
   const fetchCars = async () => {
     try {

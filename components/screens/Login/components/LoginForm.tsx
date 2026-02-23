@@ -41,7 +41,6 @@ const LoginForm = () => {
     
     setIsLoading(true);
     try {
-      console.log("check wheather it is 1")
       const res = await login(values);
       closeModal();
     } catch (error: any) {

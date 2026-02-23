@@ -46,7 +46,6 @@ const page = () => {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validation()) {
-      console.log("formdata", formData);
       setFormData({
         name: "",
         email: "",
