@@ -78,7 +78,6 @@ const NavBar = () => {
       setShowDropdown(false);
       return;
     }
-    console.log("is some data there or not ", cars);
     const results = cars.filter((car) =>
       `${car.brand} || ${car.model} || ${car.dailyPrice} || ${car.description} || ${car.model}`
         .toLowerCase()

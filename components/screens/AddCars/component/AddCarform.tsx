@@ -72,7 +72,6 @@ export const AddCarForm = () => {
 
   const onSubmit = async (data: AddCarFormValues) => {
     try {
-      console.log("check for the data what is here ",data)
       setLoading(true);
       const response = await carService.addCar(data);
       

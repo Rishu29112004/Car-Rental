@@ -56,11 +56,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     try {
       const res = await authService.login(formData);
       const { accessToken, refreshToken, ...userData } = res.data.data;
-
-
-    console.log("LOGIN FULL RESPONSE 👉", res);
-    console.log("LOGIN DATA 👉", res.data);
-    console.log("LOGIN USER DATA 👉", res.data.data);
     
       setTokens(accessToken, refreshToken);
       setUser(userData);

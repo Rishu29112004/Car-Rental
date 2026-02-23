@@ -7,7 +7,6 @@ import Image from "next/image";
 
 const AdminNavbar = () => {
 const { user } = useAuth();
-console.log(user)
   return (
     <div className="w-full bg-slate-100 shadow-md fixed top-0 z-50">
       {/* NAVBAR */}
