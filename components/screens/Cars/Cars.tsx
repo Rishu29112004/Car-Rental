@@ -238,7 +238,6 @@ const Cars = () => {
         </div>
       </div>
 
-      <Footer />
     </div>
   );
 };
