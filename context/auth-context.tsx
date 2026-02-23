@@ -15,7 +15,7 @@ export interface User {
   bio?: string;
   imageUrl?: string;
 }
-
+ 
 interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
