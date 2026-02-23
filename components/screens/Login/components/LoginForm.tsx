@@ -43,11 +43,6 @@ const LoginForm = () => {
     try {
       console.log("check wheather it is 1")
       const res = await login(values);
-      // console.log("check 2")
-
-      // toast.success("Login successful 🎉");
-
-      // Close modal before redirecting
       closeModal();
     } catch (error: any) {
       error(
